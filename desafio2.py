@@ -5,10 +5,12 @@ menu = """
 [e] Extrato
 [u] Criar Usuário
 [c] Criar Conta
+[x] Listar Contas
 [q] Sair
 
 => """
 
+#Variaveis
 saldo = 0
 limite = 500
 extrato = ""
@@ -19,6 +21,7 @@ conta = {}
 num_conta = 0
 agencia = '0001'
 
+#Funções
 def cad_users(cpf,/):
     nome = input('Nome: ')
     dt_nascimento = input('Data de Nascimento: ')
@@ -43,7 +46,8 @@ def criar_conta(*,conta,num_conta):
     else:
         print('CPF não encontrado!')
 
-#def listar_contas():
+def listar_contas(conta,/):
+    print(conta)
 
 def depositar(valor,saldo,extrato,/):
     if valor > 0:
@@ -85,8 +89,7 @@ def rel(saldo,/,extrato):
     print(f"\nSaldo: R$ {saldo:.2f}")
     print("==========================================")
 
-    
-
+#Programa
 while True:
 
     opcao = input(menu)
@@ -109,8 +112,9 @@ while True:
     
     elif opcao == 'c':
         conta,num_conta = criar_conta(conta=conta,num_conta=num_conta)
-
-            
+    
+    elif opcao =='x':
+        listar_contas(conta)     
 
     elif opcao == "e":
         rel(saldo,extrato=extrato)
