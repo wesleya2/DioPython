@@ -3,6 +3,8 @@ menu = """
 [d] Depositar
 [s] Sacar
 [e] Extrato
+[u] Criar Usuário
+[c] Criar Conta
 [q] Sair
 
 => """
@@ -12,25 +14,50 @@ limite = 500
 extrato = ""
 numero_saques = 0
 LIMITE_SAQUES = 3
+users = {}
+conta = {}
+num_conta = 0
+agencia = '0001'
 
-def depositar(x):
-    global saldo
-    global extrato
-    if valor > 0:
-            saldo += x
-            extrato += f"Depósito: R$ {x:.2f}\n"
+def cad_users(cpf,/):
+    nome = input('Nome: ')
+    dt_nascimento = input('Data de Nascimento: ')
+    rua = input('Rua: ')
+    numero_rua = input('Numero: ')
+    bairro = input('Bairro: ')
+    cidade = input('Cidade: ')
+    estado = input('Estado: ')
+    users[cpf] = {'Nome':nome,'Data de Nascimento: ':dt_nascimento,'Rua: ':rua,'Numero: ':numero_rua,'Bairro: ':bairro,'Cidade: ':cidade,'Estado: ':estado}
+    return users
+
+def criar_conta(*,conta,num_conta):
+    global users
+    #global num_conta
+    AG = agencia
+    num_conta += 1  
+    usuario = input('CPF: ')
+    if usuario in users:
+        conta[num_conta] = {'Agencia':AG,'Cliente: ':usuario}
+        print(f'Conta: {num_conta} foi criada com sucesso!' )
+        return (conta,num_conta)
     else:
-        return print("Operação falhou! O valor informado é inválido.")
+        print('CPF não encontrado!')
 
-def sacar(x):
-    global saldo
-    global limite
-    global numero_saques
-    global LIMITE_SAQUES
-    global extrato
+#def listar_contas():
+
+def depositar(valor,saldo,extrato,/):
+    if valor > 0:
+            saldo += valor
+            extrato += f"Depósito: R$ {valor:.2f}\n"
+    else:
+        print("Operação falhou! O valor informado é inválido.")
     
-    excedeu_saldo = x > saldo
-    excedeu_limite = x > limite
+    return (saldo, extrato)
+
+def sacar(*,saldo,valor,extrato,limite,numero_saques,LIMITE_SAQUES):
+    
+    excedeu_saldo = valor > saldo
+    excedeu_limite = valor > limite
     excedeu_saques = numero_saques >= LIMITE_SAQUES
 
     if excedeu_saldo:
@@ -42,15 +69,17 @@ def sacar(x):
     elif excedeu_saques:
         print("Operação falhou! Número máximo de saques excedido.")
 
-    elif x > 0:
-        saldo -= x
-        extrato += f"Saque: R$ {x:.2f}\n"
+    elif valor > 0:
+        saldo -= valor
+        extrato += f"Saque: R$ {valor:.2f}\n"
         numero_saques += 1
-
+        
     else:
         print("Operação falhou! O valor informado é inválido.")
-        
-def rel():
+
+    return (saldo, extrato,numero_saques)    
+
+def rel(saldo,/,extrato):
     print("\n================ EXTRATO ================")
     print("Não foram realizadas movimentações." if not extrato else extrato)
     print(f"\nSaldo: R$ {saldo:.2f}")
@@ -64,14 +93,27 @@ while True:
 
     if opcao == "d":
         valor = float(input("Informe o valor do depósito: "))
-        depositar(valor)
+        saldo, extrato = depositar(valor,saldo,extrato)
     
     elif opcao == "s":
         valor = float(input("Informe o valor do saque: "))
-        sacar(valor)
+        saldo, extrato, numero_saques = sacar(saldo=saldo,valor=valor,extrato=extrato,limite=limite,numero_saques=numero_saques,LIMITE_SAQUES=LIMITE_SAQUES)
+        
+    elif opcao == 'u':
+        cpf = input('Informe o CPF: ').replace('.','')
+        cpf.replace('-','')
+        if int(cpf) in users:
+            print('CPF ja cadastrado!')
+        else:
+            users = cad_users(cpf)
+    
+    elif opcao == 'c':
+        conta,num_conta = criar_conta(conta=conta,num_conta=num_conta)
+
+            
 
     elif opcao == "e":
-        rel()
+        rel(saldo,extrato=extrato)
 
     elif opcao == "q":
         break
